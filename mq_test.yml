@@ -2,5 +2,4 @@
   host: localhost
   user: rbmq_user
   pw: rbmq_pass
-  exchange: MQ_test
   queue: testQ
