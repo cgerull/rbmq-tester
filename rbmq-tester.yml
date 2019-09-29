@@ -3,3 +3,4 @@ host: localhost
 user: rbmq_user
 pw: rbmq_pass
 queue: testQ
+

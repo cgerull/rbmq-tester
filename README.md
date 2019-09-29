@@ -6,14 +6,15 @@ Test producer and consumer of RabbitMQ .
 
 Both components use a common configuration module.
 
-The defaults are basic, but enought to test an arbitrary RabbitMQ vhost. 
-Configuration can be done in two flavours: first use the mq_test.yml and set the 
-desired configurtion or use envrionment variables.
+The defaults are basic, but enought to test an arbitrary RabbitMQ vhost.
+Configuration can be done in two flavours: first use the mq_test.yml and set the
+desired configuration or use envrionment variables.
 
-The precedence is (high to low):
-environment -> config file -> build-in defaults
+The precedence of config variables is (high to low):
 
-### default values
+_environment -> config file -> build-in defaults_
+
+### Default values
 
 ```python
 'host': 'localhost',
@@ -23,10 +24,12 @@ environment -> config file -> build-in defaults
 'vhost': '/testing',
 'exchange': '',
 'queue': 'hello-MQ',
+'payload': '',
+'interval': None,
 'endless': True
 ```
 
-### rmmq_tester.yml
+### rbmq_tester.yml example
 
 ```yaml
   host: localhost
@@ -35,18 +38,19 @@ environment -> config file -> build-in defaults
   queue: testQ
 ```
 
-### environment variables
+### Environment variables
 
 In this version the following environment variables are supported:
 
-```bash
-RBMQ_HOST
-RBMQ_USER
-RBMQ_PASS
-RBMQ_QUEUE
-RBMQ_EXCHG
-RBMQ_PAYLOAD
-```
+| Variable      | Description                                          |
+|---------------|------------------------------------------------------|
+| RBMQ_HOST     | RabbitMQ host, if run from container the Docker host |
+| RBMQ_USER     | username                                             |
+| RBMQ_PASS     | password                                             |
+| RBMQ_QUEUE    | queue name, will be created if not existing          |
+| RBMQ_EXCHG    | Exchange name, default to AMQP default               |
+| RBMQ_PAYLOAD  | File name for payload file, not implemented yet      |
+| RBMQ_INTERVAL | Interval in seconds of message sent                  |
 
 ## Producer
 
@@ -74,5 +78,11 @@ docker build -t rbmq-tester:<tag> .
 Run with
 
 ```bash
-docker run -d --rm --name rbmq-tester -e MODE=<produce | consume> rbmq-tester:<tag>
+docker run -d --rm \
+   --name rbmq-tester \
+   -e MODE=<produce | consume> \
+   -e RBMQ_HOST=<myhost> \
+   rbmq-tester:<tag>
 ```
+
+Use the enclosed docker-compose.yml as an example.

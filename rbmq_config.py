@@ -17,7 +17,8 @@ config = {
     'exchange': '',
     'queue': 'hello-MQ',
     'endless': True,
-    'payload': ''
+    'payload': '',
+    'interval': None
 }
 
 config_file = './rbmq-tester.yml'
@@ -47,3 +48,5 @@ config["user"] = os.getenv('RBMQ_USER', config["user"])
 config["pw"] = os.getenv('RBMQ_PASS', config["pw"])
 config["queue"] = os.getenv('RBMQ_QUEUE', config["queue"])
 config["exchange"] = os.getenv('RBMQ_EXCHG', config["exchange"])
+config["payload"] = os.getenv('RBMQ_PAYLOAD', config["payload"])
+config["interval"] = int(os.getenv('RBMQ_INTERVAL', config["interval"]))

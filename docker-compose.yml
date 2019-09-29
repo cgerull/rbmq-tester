@@ -17,6 +17,7 @@
       environment:
         RBMQ_HOST: rbmq
         RBMQ_QUEUE: docker_queue
+        RBMQ_INTERVAL: 2
         MODE: produce
       depends_on:
         - rbmq

@@ -30,7 +30,8 @@ def usage():
 def produce(queue = config["queue"],
             payload_file=config["payload"],
             exchange = config["exchange"],
-            endless = config["endless"]):
+            endless = config["endless"],
+            interval = config["interval"]):
     if payload_file:
         payload = get_payload(payload_file)
     
@@ -51,8 +52,9 @@ def produce(queue = config["queue"],
                                     body = payload)
                                     
                 print(" Sent {}".format(payload))
-                # Sleep 5 seconds so we don't flood the exchange
-                time.sleep(5)
+                # Sleep x seconds so we don't flood the exchange
+                if interval:
+                    time.sleep(interval)
 
             connection.close()
         # Don't recover if connection was closed by broker
