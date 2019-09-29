@@ -18,7 +18,7 @@ config = {
     'queue': 'hello-MQ',
     'endless': True,
     'payload': '',
-    'interval': None
+    'interval': 0
 }
 
 config_file = './rbmq-tester.yml'
