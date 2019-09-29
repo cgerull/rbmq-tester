@@ -1,0 +1,36 @@
+---
+  version: "3.7"
+  services:
+    rbmq:
+      image: rbmq:0.0.3
+      container_name: rbmq
+      hostname: rbmq
+      ports:
+        - 5672:5672
+        - 15672:15672
+
+    rbmq-producer:
+      build: .
+      image: rbmq-tester:0.0.1
+      container_name: rbmq_producer
+      hostname: rbmq_prod
+      environment:
+        RBMQ_HOST: rbmq
+        RBMQ_QUEUE: docker_queue
+        RBMQ_INTERVAL: 2
+        MODE: produce
+      depends_on:
+        - rbmq
+    
+    rbmq-consumer:
+      build: .
+      image: rbmq-tester:0.0.1
+      container_name: rbmq_consumer
+      hostname: rbmq_cons
+      environment:
+        RBMQ_HOST: rbmq
+        RBMQ_QUEUE: docker_queue
+        MODE: consume
+      depends_on:
+        - rbmq
+        - rbmq-producer
