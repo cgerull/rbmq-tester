@@ -16,10 +16,11 @@ config = {
     'vhost': '/testing',
     'exchange': '',
     'queue': 'hello-MQ',
-    'endless': True
+    'endless': True,
+    'payload': ''
 }
 
-config_file = './mq_test.yml'
+config_file = './rbmq-test.yml'
 
 
 # Overwrite and append default from the configuration file
