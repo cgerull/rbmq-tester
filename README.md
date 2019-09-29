@@ -26,7 +26,7 @@ environment -> config file -> build-in defaults
 'endless': True
 ```
 
-### mq_test.yml
+### rmmq_tester.yml
 
 ```yaml
   host: localhost
@@ -45,6 +45,7 @@ RBMQ_USER
 RBMQ_PASS
 RBMQ_QUEUE
 RBMQ_EXCHG
+RBMQ_PAYLOAD
 ```
 
 ## Producer
@@ -67,11 +68,11 @@ process is terminated with CTRL-C.
 Build with
 
 ```bash
-docker build -t rbmq-test:<tag> .
+docker build -t rbmq-tester:<tag> .
 ```
 
 Run with
 
 ```bash
-docker run -d --rm --name rbmq-test -e MODE=<produce | consume> rbmq-test:<tag>
+docker run -d --rm --name rbmq-tester -e MODE=<produce | consume> rbmq-tester:<tag>
 ```

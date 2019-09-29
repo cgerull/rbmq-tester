@@ -20,7 +20,7 @@ config = {
     'payload': ''
 }
 
-config_file = './rbmq-test.yml'
+config_file = './rbmq-tester.yml'
 
 
 # Overwrite and append default from the configuration file

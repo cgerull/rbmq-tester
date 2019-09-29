@@ -11,7 +11,7 @@
 
     rbmq-producer:
       build: .
-      image: rbmq-test:0.0.1
+      image: rbmq-tester:0.0.1
       container_name: rbmq_producer
       hostname: rbmq_prod
       environment:
@@ -23,7 +23,7 @@
     
     rbmq-consumer:
       build: .
-      image: rbmq-test:0.0.1
+      image: rbmq-tester:0.0.1
       container_name: rbmq_consumer
       hostname: rbmq_cons
       environment:

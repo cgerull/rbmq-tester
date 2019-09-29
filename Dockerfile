@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD python ./rbmq-test.py ${MODE}
+CMD python ./rbmq-tester.py ${MODE}
