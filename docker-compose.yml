@@ -9,14 +9,27 @@
         - 5672:5672
         - 15672:15672
 
-    mq_producer:
+    rbmq-producer:
       build: .
-      image: mq_producer:0.0.1
+      image: rbmq-test:0.0.1
       container_name: rbmq_producer
       hostname: rbmq_prod
       environment:
         RBMQ_HOST: rbmq
         RBMQ_QUEUE: docker_queue
+        MODE: produce
       depends_on:
         - rbmq
-      
+    
+    rbmq-consumer:
+      build: .
+      image: rbmq-test:0.0.1
+      container_name: rbmq_consumer
+      hostname: rbmq_cons
+      environment:
+        RBMQ_HOST: rbmq
+        RBMQ_QUEUE: docker_queue
+        MODE: consume
+      depends_on:
+        - rbmq
+        - rbmq-producer

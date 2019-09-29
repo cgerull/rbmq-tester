@@ -63,3 +63,15 @@ Again it will read the queue and print the received content until the
 process is terminated with CTRL-C.
 
 ## Running as Docker containers
+
+Build with
+
+```bash
+docker build -t rbmq-test:<tag> .
+```
+
+Run with
+
+```bash
+docker run -d --rm --name rbmq-test -e MODE=<produce | consume> rbmq-test:<tag>
+```
