@@ -6,9 +6,9 @@ Test producer and consumer of RabbitMQ .
 
 Both components use a common configuration module.
 
-The defaults are basic, but enought to test an arbitrary RabbitMQ vhost.
+The defaults are basic, but enough to test an arbitrary RabbitMQ vhost.
 Configuration can be done in two flavours: first use the mq_test.yml and set the
-desired configuration or use envrionment variables.
+desired configuration or use environment variables.
 
 The precedence of config variables is (high to low):
 
