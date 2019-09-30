@@ -46,6 +46,7 @@
       image: rbmq-test:1.0.0
       cpus: 0.5
       mem_limit: 20M
+
       container_name: rbmq_consumer
       hostname: rbmq_cons
       environment:
