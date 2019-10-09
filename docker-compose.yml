@@ -1,54 +1,28 @@
 ---
-  version: "2.4"
+  version: "3.7"
   services:
     rbmq:
       image: cgerull/rbmq-image:latest
-      cpus: 1.5
-      mem_limit: 256M
       container_name: rbmq
       hostname: rbmq
       ports:
         - 5672:5672
         - 15672:15672
 
-    rbmq-producer-01:
-      #image: cgerull/rbmq-test:1.1.0
-      image: rbmq-test:1.0.0
-      cpus: 0.5
-      mem_limit: 20M
-      container_name: rbmq_producer_01
-      hostname: rbmq_prod_01
+    rbmq-producer:
+      image: cgerull/rbmq-test:1.1.0
+      #image: rbmq-test:1.0.0
       environment:
         RBMQ_HOST: rbmq
         RBMQ_QUEUE: docker_queue
-        RBMQ_INTERVAL: 0
+        RBMQ_INTERVAL: 1
         MODE: produce
       depends_on:
         - rbmq
  
-    rbmq-producer-02:
-      #image: cgerull/rbmq-test:1.1.0
-      image: rbmq-test:1.0.0
-      cpus: 0.5
-      mem_limit: 20M
-      container_name: rbmq_producer_02
-      hostname: rbmq_prod_02
-      environment:
-        RBMQ_HOST: rbmq
-        RBMQ_QUEUE: docker_queue
-        RBMQ_INTERVAL: 0
-        MODE: produce
-      depends_on:
-        - rbmq
-
     rbmq-consumer:
-      #image: cgerull/rbmq-test:1.1.0
-      image: rbmq-test:1.0.0
-      cpus: 0.5
-      mem_limit: 20M
-
-      container_name: rbmq_consumer
-      hostname: rbmq_cons
+      image: cgerull/rbmq-test:1.1.0
+      #image: rbmq-test:1.0.0
       environment:
         RBMQ_HOST: rbmq
         RBMQ_QUEUE: docker_queue
