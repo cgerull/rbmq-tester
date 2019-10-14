@@ -85,4 +85,4 @@ docker run -d --rm \
    rbmq-tester:<tag>
 ```
 
-Use the enclosed docker-compose.yml as an example.
+Use one of the enclosed docker-composs files as an example.

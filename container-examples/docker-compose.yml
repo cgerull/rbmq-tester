@@ -8,6 +8,9 @@
         - 5672:5672
         - 15672:15672
       deploy:
+        replicas: 1
+        restart_policy:
+          condition: on-failure
         resources:
           limits:
             cpus: '1.75'
@@ -45,6 +48,9 @@
       image: cgerull/rbmq-test:1.1.0
       #image: rbmq-test:1.0.0
       deploy:
+        replicas: 1
+        restart_policy:
+          condition: on-failure
         resources:
           limits:
             cpus: '1.50'
