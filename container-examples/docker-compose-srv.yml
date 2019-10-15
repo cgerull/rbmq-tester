@@ -1,23 +1,23 @@
 ---
-  version: "3.7"
-  services:
-    mq-srv:
-      image: cgerull/rbmq-image:latest
-      ports:
-        - 5672:5672
-        - 15672:15672
-      networks:
-        mq-test:
-      deploy:
-        replicas: 1
-        restart_policy:
-          condition: on-failure
-        resources:
-          limits:
-            cpus: '1.75'
-            memory: 300M
-          reservations:
-            cpus: '0.50'
-            memory: 100M
-  networks:
-    mq-test:
+version: "3.3"
+services:
+  mq-srv:
+    image: cgerull/rbmq-image:latest
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      mq-test:
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.75'
+          memory: 300M
+        reservations:
+          cpus: '0.50'
+          memory: 100M
+networks:
+  mq-test:
