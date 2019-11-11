@@ -1,0 +1,45 @@
+---
+version: "3.1"
+services:
+  rbmq-producer:
+    image: cgerull/rbmq-test:1.1.0
+    #image: rbmq-test:1.0.0
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.50'
+          memory: 30M
+        reservations:
+          cpus: '0.15'
+          memory: 10M
+    environment:
+      RBMQ_HOST: rbmq
+      RBMQ_QUEUE: /testing
+      RBMQ_INTERVAL: 1
+      MODE: produce
+
+
+  rbmq-consumer:
+    image: cgerull/rbmq-test:1.1.0
+    #image: rbmq-test:1.0.0
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.50'
+          memory: 30M
+        reservations:
+          cpus: '0.15'
+          memory: 10M
+    environment:
+      RBMQ_HOST: rbmq
+      RBMQ_QUEUE: /testing
+      MODE: consume
