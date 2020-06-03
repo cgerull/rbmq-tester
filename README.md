@@ -49,7 +49,7 @@ In this version the following environment variables are supported:
 | RBMQ_PASS     | password                                             |
 | RBMQ_QUEUE    | queue name, will be created if not existing          |
 | RBMQ_EXCHG    | Exchange name, default to AMQP default               |
-| RBMQ_PAYLOAD  | File name for payload file, not implemented yet      |
+| RBMQ_PAYLOAD  | File name for payload file                           |
 | RBMQ_INTERVAL | Interval in seconds of message sent                  |
 
 ## Producer
