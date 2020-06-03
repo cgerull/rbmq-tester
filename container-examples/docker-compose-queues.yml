@@ -1,0 +1,124 @@
+---
+version: "3.3"
+services:
+  srv:
+    image: cgerull/rbmq-image:latest
+    networks:
+      mq-test:
+    ports:
+      - 5672:5672
+      - 15672:15672
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.75'
+          memory: 300M
+        reservations:
+          cpus: '0.50'
+          memory: 100M    
+
+  producer_q1:
+    image: cgerull/rbmq-test:1.1.0
+    #image: rbmq-test:1.0.0
+    networks:
+      mq-test:
+    deploy:
+      replicas: 4
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.50'
+          memory: 30M
+        reservations:
+          cpus: '0.15'
+          memory: 10M
+    environment:
+      RBMQ_HOST: srv
+      RBMQ_QUEUE: docker_queue
+      RBMQ_INTERVAL: 1
+      MODE: produce
+    depends_on:
+      - srv
+
+  producer_q2:
+    image: cgerull/rbmq-test:1.1.0
+    #image: rbmq-test:1.0.0
+    networks:
+      mq-test:
+    deploy:
+      replicas: 4
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.50'
+          memory: 30M
+        reservations:
+          cpus: '0.15'
+          memory: 10M
+    environment:
+      RBMQ_HOST: srv
+      RBMQ_QUEUE: Internal.overhead
+      RBMQ_INTERVAL: 1
+      MODE: produce
+    depends_on:
+      - srv
+  
+  consumer_q1:
+    image: cgerull/rbmq-test:1.1.0
+    #image: rbmq-test:1.0.0
+    networks:
+      mq-test:
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.50'
+          memory: 30M
+        reservations:
+          cpus: '0.15'
+          memory: 10M
+    environment:
+      RBMQ_HOST: srv
+      RBMQ_QUEUE: docker_queue
+      MODE: consume
+    depends_on:
+      - srv
+  
+  consumer_q2:
+    image: cgerull/rbmq-test:1.1.0
+    #image: rbmq-test:1.0.0
+    networks:
+      mq-test:
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.50'
+          memory: 30M
+        reservations:
+          cpus: '0.15'
+          memory: 10M
+    environment:
+      RBMQ_HOST: srv
+      RBMQ_QUEUE: Internal.overhead
+      MODE: consume
+    depends_on:
+      - srv
+
+networks:
+  mq-test:

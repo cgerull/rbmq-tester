@@ -4,6 +4,7 @@ import sys
 import time
 
 import pika
+import json
 
 from rbmq_config import config
 
@@ -15,8 +16,32 @@ conn_parameters = pika.ConnectionParameters(config["host"],
                                        conn_credentials)
 
 # ToDo: define payload handling
+def default_playload():
+    return {
+        'properties': pika.BasicProperties(
+            content_type='text/plain',
+            delivery_mode=1
+        ),
+        'message': "Now it's {} in {}".format(
+                time.asctime(time.localtime()), time.tzname)
+    }
+
 def get_payload(file):
     pass
+    payload = None
+    # Select loader based on file extension
+    # if file.extention == 'json':
+    # load json file.
+    with open(file) as f:
+        msg_data = json.load(f)
+    payload = {
+        'properties': pika.BasicProperties(
+                            content_type='application/json',
+                            delivery_mode=1
+                        ),
+        'message': json.dumps(msg_data)
+    }
+    return payload
 
 def usage():
     print("""
@@ -43,13 +68,14 @@ def produce(queue = config["queue"],
             channel.queue_declare(queue=queue)
             print("MQ Producer is running, stop with CTRL-C")
             while True:
-                if not payload_file:
-                    payload = "Now it's {} in {}".format(
-                                time.asctime(time.localtime()), time.tzname)
-
+                if payload_file:
+                    payload = get_payload(payload_file)
+                else:
+                    payload = default_playload()
                 channel.basic_publish(exchange=exchange,
                                     routing_key = queue,
-                                    body = payload)
+                                    properties = payload['properties'],
+                                    body = payload['message'])
                                     
                 print(" Sent {}".format(payload))
                 # Sleep x seconds so we don't flood the exchange

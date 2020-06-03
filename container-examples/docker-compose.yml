@@ -1,0 +1,67 @@
+---
+version: "3.3"
+services:
+  rbmq:
+    image: cgerull/rbmq-image:latest
+    hostname: rbmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.75'
+          memory: 300M
+        reservations:
+          cpus: '0.50'
+          memory: 100M
+
+  rbmq-producer:
+    image: cgerull/rbmq-test:1.1.0
+    #image: rbmq-test:1.0.0
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.50'
+          memory: 30M
+        reservations:
+          cpus: '0.15'
+          memory: 10M
+    environment:
+      RBMQ_HOST: rbmq
+      RBMQ_QUEUE: docker_queue
+      RBMQ_INTERVAL: 0
+      MODE: produce
+    depends_on:
+      - rbmq
+
+  rbmq-consumer:
+    image: cgerull/rbmq-test:1.1.0
+    #image: rbmq-test:1.0.0
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.50'
+          memory: 30M
+        reservations:
+          cpus: '0.15'
+          memory: 10M
+    environment:
+      RBMQ_HOST: rbmq
+      RBMQ_QUEUE: docker_queue
+      MODE: consume
+    depends_on:
+      - rbmq
+
