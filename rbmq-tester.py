@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 #
 import sys
+import os
 import time
 
 import pika
 import json
+import yaml
 
 from rbmq_config import config
 
@@ -22,26 +24,49 @@ def default_playload():
             content_type='text/plain',
             delivery_mode=1
         ),
-        'message': "Now it's {} in {}".format(
+        'body': "Now it's {} in {}".format(
                 time.asctime(time.localtime()), time.tzname)
     }
 
-def get_payload(file):
-    pass
-    payload = None
-    # Select loader based on file extension
-    # if file.extention == 'json':
-    # load json file.
-    with open(file) as f:
-        msg_data = json.load(f)
+def get_payload(payload_list):
+    data_path = os.path.dirname(payload_list)
+    with open(payload_list) as f:
+        definition= yaml.safe_load(f)
     payload = {
         'properties': pika.BasicProperties(
-                            content_type='application/json',
-                            delivery_mode=1
-                        ),
-        'message': json.dumps(msg_data)
+                content_type = definition['properties']['content_type'],
+                headers = definition['properties']['headers'],
+                delivery_mode = 1),
+        'body': get_body(
+            os.path.join(data_path, definition['content']),
+            definition['properties']['content_type'])
     }
     return payload
+
+def get_body(file, type):
+    body = None
+    if 'text' == os.path.basename(type):
+        body = get_plain_file(file)
+    elif 'json' == os.path.basename(type):
+        body = get_json_file(file)
+    return body 
+
+def get_plain_file(file):
+    with open(file) as f:
+        body = f.read()
+    return body
+
+def get_json_file(file):
+    with open(file) as f:
+        data = json.load(f)
+    return json.dumps(data) 
+
+
+# def get_properties(properties):
+#     props = []
+#     for prop in properties.items():
+#                     props.append("prop[0] = prop[1]")
+#     return props
 
 def usage():
     print("""
@@ -75,7 +100,7 @@ def produce(queue = config["queue"],
                 channel.basic_publish(exchange=exchange,
                                     routing_key = queue,
                                     properties = payload['properties'],
-                                    body = payload['message'])
+                                    body = payload['body'])
                                     
                 print(" Sent {}".format(payload))
                 # Sleep x seconds so we don't flood the exchange
