@@ -7,12 +7,12 @@ Test producer and consumer of RabbitMQ .
 Both components use a common configuration module.
 
 The defaults are basic, but enough to test an arbitrary RabbitMQ vhost.
-Configuration can be done in two flavours: first use the mq_test.yml and set the
+Configuration can be done in two flavours: first use the rbmq_test.yml and set the
 desired configuration or use environment variables.
 
 The precedence of config variables is (high to low):
 
-_environment -> config file -> build-in defaults_
+> _environment -> config file -> build-in defaults_
 
 ### Default values
 
@@ -85,24 +85,33 @@ docker run -d --rm \
    rbmq-tester:<tag>
 ```
 
-Use one of the enclosed docker-composs files as an example.
+Use one of the enclosed docker-compose files as an example.
 
 ## Run local
 
-Best to run in a Python virtual environment. Use python 3.7 or higher.
+The best way to run modern python programs is from a virtual environment.
 
-Install python virtual environment
-
-```python -m venv venv```
-
-And run on Linux or MacOs with 
-```source venv/bin/activate```
-
-or on Windows with
-```venv\script\activate\.bat```
-
-Now edit your rbmq-tester.yml and run rbmq-tester with
+Install and prepare environment.
 
 ```bash
-venv $ python rbmq-tester.py produce
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+``` 
+
+Now your able to runrbmq-tester with it's dependencies in a private environment.
+
+On Windows use ```\venv\scripts\activate.bat``` to switch to the virtual environment.
+
+When done use ```deactivate``` to leave the virtual environment.
+
+```bash
+# Run to program local
+# Make sure to configure rbmq-tester.yml first.
+# As producer
+
+python rbmq-tester produce
+
+# As consumer
+python rbmq-tester consume
 ```
