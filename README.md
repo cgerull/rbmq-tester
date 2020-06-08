@@ -86,3 +86,23 @@ docker run -d --rm \
 ```
 
 Use one of the enclosed docker-composs files as an example.
+
+## Run local
+
+Best to run in a Python virtual environment. Use python 3.7 or higher.
+
+Install python virtual environment
+
+```python -m venv venv```
+
+And run on Linux or MacOs with 
+```source venv/bin/activate```
+
+or on Windows with
+```venv\script\activate\.bat```
+
+Now edit your rbmq-tester.yml and run rbmq-tester with
+
+```bash
+venv $ python rbmq-tester.py produce
+```
