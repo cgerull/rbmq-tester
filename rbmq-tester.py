@@ -8,9 +8,11 @@ import pika
 import json
 import yaml
 
-from rbmq_config import config
+import rbmq_config
+# from rbmq_config import Config
 
 # Set connection parameters
+config = rbmq_config.Config().get_config()
 conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
 conn_parameters = pika.ConnectionParameters(config["host"],
                                        config["port"],
@@ -169,6 +171,7 @@ if __name__ == "__main__":
         usage()
         exit(1)
     mode = sys.argv[1]
+    # config = rbmq_config.Config().get_config()
     # Log our configuration
     print("{} config is {}".format(mode, config))
     try:
