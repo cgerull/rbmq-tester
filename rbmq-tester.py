@@ -89,14 +89,11 @@ def usage():
 
 
 def produce(config):
-    # queue = config["queue"],
-    # payload_file=config["payload"],
-    # exchange = config["exchange"],
-    # endless = config["endless"],
-    # interval = config["interval"]
+    '''
+    Send message to a RabbitMQ server.
 
-    
-    
+    See rbmq_config.py for the possible parameters.
+    '''
     # Automatic connection recovery
     while config["endless"]:
         try:
@@ -139,43 +136,53 @@ def produce(config):
             continue
 
 
-def consume(queue=config["queue"],
-            payload='',
-            exchange=config["exchange"],
-            endless=config["endless"]):
+def consume(config):
+    '''
+    Reads from aRabbitMQ server.
+
+    Fetches message from the queue in an endless loop.
+
+    See rbmq_config.py for the possible parameters.
+    '''
+    # queue=config["queue"],
+    #        payload='',
+    #         exchange=config["exchange"],
+    #         endless=config["endless"]):
         # Automatic connection recovery
-        while True:
-            try:
-                connection = pika.BlockingConnection(conn_parameters)
-                channel = connection.channel()
-                channel.queue_declare(queue=queue)
-                def callback(ch, method, properties, body):
-                    print("Received {}".format(body))
-
-                channel.basic_consume(
-                    queue=queue,
-                    on_message_callback=callback,
-                    auto_ack=True
+    while True:
+        try:
+            connection = pika.BlockingConnection(
+                get_connection_parameters(config)
                 )
+            channel = connection.channel()
+            channel.queue_declare(config["queue"])
+            def callback(ch, method, properties, body):
+                print("Received {}".format(body))
 
-                print('Waiting for messages. To exit press CTRL+C')
-                channel.start_consuming()
+            channel.basic_consume(
+                queue=config["queue"],
+                on_message_callback=callback,
+                auto_ack=True
+            )
 
-            # Don't recover if connection was closed by broker
-            except pika.exceptions.ConnectionClosedByBroker:
-                break
-            # Don't recover on channel errors
-            except pika.exceptions.AMQPChannelError:
-                break
-            # Break on keyboard interrupt
-            except KeyboardInterrupt:
-                break
-            # Recover on all other connection errors
-            except pika.exceptions.AMQPConnectionError:
-                # Retry once a second
-                print("No connection, retrying ...")
-                time.sleep(1)
-                continue
+            print('Waiting for messages. To exit press CTRL+C')
+            channel.start_consuming()
+
+        # Don't recover if connection was closed by broker
+        except pika.exceptions.ConnectionClosedByBroker:
+            break
+        # Don't recover on channel errors
+        except pika.exceptions.AMQPChannelError:
+            break
+        # Break on keyboard interrupt
+        except KeyboardInterrupt:
+            break
+        # Recover on all other connection errors
+        except pika.exceptions.AMQPConnectionError:
+            # Retry once a second
+            print("No connection, retrying ...")
+            time.sleep(1)
+            continue
 
 
 if __name__ == "__main__":
@@ -190,7 +197,7 @@ if __name__ == "__main__":
         if 'produce' == mode:
             produce(config)
         elif 'consume'  == mode:
-            consume()
+            consume(config)
         else:
             usage()
             exit(1)
