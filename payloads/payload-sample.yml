@@ -1,0 +1,16 @@
+---
+# messages:
+# properties:
+#   content_type: plain/text
+#   headers:
+#     purpose: testing
+#     type: simple
+# content: plain.txt
+properties:
+  content_type: application/json
+  headers:
+    purpose: testing
+    type: structured
+content: structured.json
+
+

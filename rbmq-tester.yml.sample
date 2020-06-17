@@ -2,7 +2,7 @@
 host: 192.168.178.54
 user: rbmq_user
 pw: rbmq_pass
-queue: Internal.Transaction
-interval: 0
+queue: testq
+interval: 10
 
 
