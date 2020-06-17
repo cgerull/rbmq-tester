@@ -19,17 +19,10 @@ def get_connection_parameters(config):
                                        config["vhost"],
                                        conn_credentials)
     return conn_parameters
-
-# # Set connection parameters
-# config = rbmq_config.Config().get_config()
-# conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
-# conn_parameters = pika.ConnectionParameters(config["host"],
-#                                        config["port"],
-#                                        config["vhost"],
-#                                        conn_credentials)
-
+                                      conn_credentials)
 
 def default_playload():
+    '''Define the default hardcode payload for quick tests'''
     return {
         'properties': pika.BasicProperties(
             content_type='text/plain',
@@ -40,6 +33,7 @@ def default_playload():
     }
 
 def get_payload(payload_list):
+    '''Load the payload properties and body from file.'''
     data_path = os.path.dirname(payload_list)
     with open(payload_list) as f:
         definition= yaml.safe_load(f)
@@ -55,6 +49,11 @@ def get_payload(payload_list):
     return payload
 
 def get_body(file, type):
+    '''
+    Load payload body from file.
+    Currently only text and json filetypes are supported.
+    Return body in text or json format
+    '''
     body = None
     if 'text' == os.path.basename(type):
         body = get_plain_file(file)
@@ -63,21 +62,22 @@ def get_body(file, type):
     return body 
 
 def get_plain_file(file):
+    '''
+    Load text file.
+    Return: String
+    '''
     with open(file) as f:
         body = f.read()
     return body
 
 def get_json_file(file):
+    '''
+    Load json file.
+    Return: json
+    '''
     with open(file) as f:
         data = json.load(f)
     return json.dumps(data) 
-
-
-# def get_properties(properties):
-#     props = []
-#     for prop in properties.items():
-#                     props.append("prop[0] = prop[1]")
-#     return props
 
 def usage():
     print("""
