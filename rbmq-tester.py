@@ -20,13 +20,13 @@ def get_connection_parameters(config):
                                        conn_credentials)
     return conn_parameters
 
-# Set connection parameters
-config = rbmq_config.Config().get_config()
-conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
-conn_parameters = pika.ConnectionParameters(config["host"],
-                                       config["port"],
-                                       config["vhost"],
-                                       conn_credentials)
+# # Set connection parameters
+# config = rbmq_config.Config().get_config()
+# conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
+# conn_parameters = pika.ConnectionParameters(config["host"],
+#                                        config["port"],
+#                                        config["vhost"],
+#                                        conn_credentials)
 
 
 def default_playload():
