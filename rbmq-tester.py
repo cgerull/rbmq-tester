@@ -11,15 +11,24 @@ import yaml
 import rbmq_config
 # from rbmq_config import Config
 
-# Set connection parameters
-config = rbmq_config.Config().get_config()
-conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
-conn_parameters = pika.ConnectionParameters(config["host"],
+def get_connection_parameters(config):
+    '''Build pika connection parameters from config.'''
+    conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
+    conn_parameters = pika.ConnectionParameters(config["host"],
                                        config["port"],
                                        config["vhost"],
                                        conn_credentials)
+    return conn_parameters
 
-# ToDo: define payload handling
+# # Set connection parameters
+# config = rbmq_config.Config().get_config()
+# conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
+# conn_parameters = pika.ConnectionParameters(config["host"],
+#                                        config["port"],
+#                                        config["vhost"],
+#                                        conn_credentials)
+
+
 def default_playload():
     return {
         'properties': pika.BasicProperties(
@@ -79,35 +88,35 @@ def usage():
     )
 
 
-def produce(queue = config["queue"],
-            payload_file=config["payload"],
-            exchange = config["exchange"],
-            endless = config["endless"],
-            interval = config["interval"]):
-    if payload_file:
-        payload = get_payload(payload_file)
-    
+def produce(config):
+    '''
+    Send message to a RabbitMQ server.
+
+    See rbmq_config.py for the possible parameters.
+    '''
     # Automatic connection recovery
-    while True:
+    while config["endless"]:
         try:
-            connection = pika.BlockingConnection(conn_parameters)
+            connection = pika.BlockingConnection(
+                get_connection_parameters(config)
+                )
             channel = connection.channel()
-            channel.queue_declare(queue=queue)
+            channel.queue_declare(queue=config["queue"])
             print("MQ Producer is running, stop with CTRL-C")
             while True:
-                if payload_file:
-                    payload = get_payload(payload_file)
+                if config["payload"]:
+                    payload = get_payload(config["payload"])
                 else:
                     payload = default_playload()
-                channel.basic_publish(exchange=exchange,
-                                    routing_key = queue,
+                channel.basic_publish(exchange=config["exchange"],
+                                    routing_key = config["queue"],
                                     properties = payload['properties'],
                                     body = payload['body'])
                                     
                 print(" Sent {}".format(payload))
                 # Sleep x seconds so we don't flood the exchange
-                if interval:
-                    time.sleep(interval)
+                if config["interval"]:
+                    time.sleep(config["interval"])
 
             connection.close()
         # Don't recover if connection was closed by broker
@@ -127,43 +136,53 @@ def produce(queue = config["queue"],
             continue
 
 
-def consume(queue=config["queue"],
-            payload='',
-            exchange=config["exchange"],
-            endless=config["endless"]):
+def consume(config):
+    '''
+    Reads from aRabbitMQ server.
+
+    Fetches message from the queue in an endless loop.
+
+    See rbmq_config.py for the possible parameters.
+    '''
+    # queue=config["queue"],
+    #        payload='',
+    #         exchange=config["exchange"],
+    #         endless=config["endless"]):
         # Automatic connection recovery
-        while True:
-            try:
-                connection = pika.BlockingConnection(conn_parameters)
-                channel = connection.channel()
-                channel.queue_declare(queue=queue)
-                def callback(ch, method, properties, body):
-                    print("Received {}".format(body))
-
-                channel.basic_consume(
-                    queue=queue,
-                    on_message_callback=callback,
-                    auto_ack=True
+    while True:
+        try:
+            connection = pika.BlockingConnection(
+                get_connection_parameters(config)
                 )
+            channel = connection.channel()
+            channel.queue_declare(config["queue"])
+            def callback(ch, method, properties, body):
+                print("Received {}".format(body))
 
-                print('Waiting for messages. To exit press CTRL+C')
-                channel.start_consuming()
+            channel.basic_consume(
+                queue=config["queue"],
+                on_message_callback=callback,
+                auto_ack=True
+            )
 
-            # Don't recover if connection was closed by broker
-            except pika.exceptions.ConnectionClosedByBroker:
-                break
-            # Don't recover on channel errors
-            except pika.exceptions.AMQPChannelError:
-                break
-            # Break on keyboard interrupt
-            except KeyboardInterrupt:
-                break
-            # Recover on all other connection errors
-            except pika.exceptions.AMQPConnectionError:
-                # Retry once a second
-                print("No connection, retrying ...")
-                time.sleep(1)
-                continue
+            print('Waiting for messages. To exit press CTRL+C')
+            channel.start_consuming()
+
+        # Don't recover if connection was closed by broker
+        except pika.exceptions.ConnectionClosedByBroker:
+            break
+        # Don't recover on channel errors
+        except pika.exceptions.AMQPChannelError:
+            break
+        # Break on keyboard interrupt
+        except KeyboardInterrupt:
+            break
+        # Recover on all other connection errors
+        except pika.exceptions.AMQPConnectionError:
+            # Retry once a second
+            print("No connection, retrying ...")
+            time.sleep(1)
+            continue
 
 
 if __name__ == "__main__":
@@ -171,14 +190,14 @@ if __name__ == "__main__":
         usage()
         exit(1)
     mode = sys.argv[1]
-    # config = rbmq_config.Config().get_config()
+    config = rbmq_config.Config().get_config()
     # Log our configuration
     print("{} config is {}".format(mode, config))
     try:
         if 'produce' == mode:
-            produce()
+            produce(config)
         elif 'consume'  == mode:
-            consume()
+            consume(config)
         else:
             usage()
             exit(1)
