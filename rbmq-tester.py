@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 #
+"""
+Basic RabbitMQ test tool.
+
+Can be configured as producer or consumer.
+
+Producer sends a configurable payload to an exchange.
+
+Consumer reads form a queue and output the result to stdout.
+"""
+
 import sys
 import os
 import time
@@ -12,17 +22,29 @@ import rbmq_config
 # from rbmq_config import Config
 
 def get_connection_parameters(config):
-    '''Build pika connection parameters from config.'''
+    """
+    Build pika connection parameters from config.
+    
+    Parameter: 
+        config: Config object.
+
+    Returns:
+        The pika connection parameters.
+    """
     conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
     conn_parameters = pika.ConnectionParameters(config["host"],
                                        config["port"],
                                        config["vhost"],
                                        conn_credentials)
     return conn_parameters
-                                      conn_credentials)
 
 def default_playload():
-    '''Define the default hardcode payload for quick tests'''
+    """
+    Define the default hardcode payload for quick tests.
+    
+    Returns:
+        A default payload with the current time.
+    """
     return {
         'properties': pika.BasicProperties(
             content_type='text/plain',
@@ -33,7 +55,7 @@ def default_playload():
     }
 
 def get_payload(payload_list):
-    '''Load the payload properties and body from file.'''
+    """Load the payload properties and body from file."""
     data_path = os.path.dirname(payload_list)
     with open(payload_list) as f:
         definition= yaml.safe_load(f)
@@ -49,11 +71,14 @@ def get_payload(payload_list):
     return payload
 
 def get_body(file, type):
-    '''
+    """
     Load payload body from file.
+
     Currently only text and json filetypes are supported.
-    Return body in text or json format
-    '''
+
+    Returns:
+        Body in text or json format
+    """
     body = None
     if 'text' == os.path.basename(type):
         body = get_plain_file(file)
@@ -62,24 +87,29 @@ def get_body(file, type):
     return body 
 
 def get_plain_file(file):
-    '''
+    """
     Load text file.
-    Return: String
-    '''
+
+    Returns: 
+        the stringfied file
+    """
     with open(file) as f:
         body = f.read()
     return body
 
 def get_json_file(file):
-    '''
+    """
     Load json file.
-    Return: json
-    '''
+
+    Returns: 
+        a json string
+    """
     with open(file) as f:
         data = json.load(f)
     return json.dumps(data) 
 
 def usage():
+    """Print usage to stdout."""
     print("""
     usage:
       rbmq-test produce | consume
@@ -89,11 +119,11 @@ def usage():
 
 
 def produce(config):
-    '''
+    """
     Send message to a RabbitMQ server.
 
     See rbmq_config.py for the possible parameters.
-    '''
+    """
     # Automatic connection recovery
     while config["endless"]:
         try:
@@ -137,13 +167,13 @@ def produce(config):
 
 
 def consume(config):
-    '''
-    Reads from aRabbitMQ server.
+    """
+    Read from a RabbitMQ queue.
 
-    Fetches message from the queue in an endless loop.
+    Fetch message from a given queue in an endless loop.
 
     See rbmq_config.py for the possible parameters.
-    '''
+    """
     # queue=config["queue"],
     #        payload='',
     #         exchange=config["exchange"],
