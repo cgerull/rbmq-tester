@@ -52,6 +52,7 @@ In this version the following environment variables are supported:
 | RBMQ_PAYLOAD  | File name for payload file                           |
 | RBMQ_INTERVAL | Interval in seconds of message sent                  |
 
+
 ## Producer
 
 The producer connects to the exchange with the configured parameters.
@@ -84,14 +85,13 @@ docker run -d --rm \
    -e RBMQ_HOST=<myhost> \
    rbmq-tester:<tag>
 ```
-
 Use one of the enclosed docker-compose files as an example.
 
 ## Run local
 
 The best way to run modern python programs is from a virtual environment.
 
-Install and prepare environment.
+Install and prepare environment, rbmq-test requires python 3.
 
 ```bash
 python3 -m venv venv

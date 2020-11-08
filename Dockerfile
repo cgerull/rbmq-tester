@@ -8,9 +8,14 @@ WORKDIR /usr/src/app
 # COPY requirements.txt ./
 COPY . .
 
-RUN apk add --update --no-cache python3 \
- && pip3 install --update pip \
- && pip3 install --no-cache-dir -r requirements.txt
+RUN apk add --update --no-cache \
+    python3 \
+    py3-pip \
+ && pip install --upgrade pip \
+ && pip install --no-cache-dir -r requirements.txt \
+ && adduser --disabled-password tester && chown -R tester.tester /usr/src/app
+
+USER tester
 # WORKDIR /usr/src/app
 
 

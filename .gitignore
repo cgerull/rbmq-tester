@@ -1,5 +1,6 @@
 .vscode/
 venv/
+py/
 winpy/
 **/rbmq-tester.yml
 **/payload.yml
