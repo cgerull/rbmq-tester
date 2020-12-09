@@ -151,8 +151,7 @@ def produce(config):
             connection.close()
         # Don't recover if connection was closed by broker
         except pika.exceptions.ConnectionClosedByBroker as conn_excep:
-            print("ConnectionClosedByBroker: {}".format(conn_excep))/AMQP
-            //
+            print("ConnectionClosedByBroker: {}".format(conn_excep))
             break
         # Don't recover on channel errors
         except pika.exceptions.AMQPChannelError as amqp_chan_err:
