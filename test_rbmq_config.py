@@ -10,11 +10,12 @@ def generate_config_parameters(request):
     expected_default_result = {
         'host': 'localhost',
         'port': 5672,
-        'user': 'guest',
-        'pw': 'guest',
+        'user': 'mquser',
+        'pw': '$eCr3t',
         'vhost': 'LOCAL',
         'exchange': '',
-        'queue': 'hello-MQ',
+        'queue': 'myMQ',
+        'routing_key': '',
         'endless': True,
         'payload': '',
         'interval': 0
@@ -27,6 +28,7 @@ def generate_config_parameters(request):
         'vhost': 'LOCAL',
         'exchange': '',
         'queue': 'testq',
+        'routing_key': '',
         'endless': True,
         'payload': '',
         'interval': 10
@@ -39,6 +41,7 @@ def generate_config_parameters(request):
         'vhost': '/myvhost',
         'exchange': 'test_exchg',
         'queue': 'test_q',
+        'routing_key': 'rkey',
         'endless': True,
         'payload': 'test_payload',
         'interval': 60
@@ -55,6 +58,7 @@ def mock_set_environment(monkeypatch):
         'RBMQ_PASS': 'test_pw',
         'RBMQ_VHOST': '/myvhost',
         'RBMQ_QUEUE': 'test_q',
+        'RBMQ_ROUTING_KEY': 'rkey',
         'RBMQ_EXCHANGE': 'test_exchg',
         'RBMQ_PAYLOAD': 'test_payload',
         'RBMQ_INTERVAL': '60'
