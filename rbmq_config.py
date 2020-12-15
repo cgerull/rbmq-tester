@@ -14,11 +14,12 @@ class Config:
     config = {
         'host': 'localhost',
         'port': 5672,
-        'user': 'guest',
-        'pw': 'guest',
+        'user': 'mquser',
+        'pw': '$eCr3t',
         'vhost': 'LOCAL',
         'exchange': '',
-        'queue': 'hello-MQ',
+        'queue': 'myMQ',
+        'routing_key': '',
         'endless': True,
         'payload': '',
         'interval': 0
@@ -72,6 +73,7 @@ class Config:
         self.config["pw"] = os.getenv('RBMQ_PASS', self.config["pw"])
         self.config["vhost"] = os.getenv('RBMQ_VHOST', self.config["vhost"])
         self.config["queue"] = os.getenv('RBMQ_QUEUE', self.config["queue"])
+        self.config["routing_key"] = os.getenv('RBMQ_ROUTING_KEY', self.config["routing_key"])
         self.config["exchange"] = os.getenv('RBMQ_EXCHANGE', self.config["exchange"])
         self.config["payload"] = os.getenv('RBMQ_PAYLOAD', self.config["payload"])
         self.config["interval"] = int(os.getenv('RBMQ_INTERVAL', self.config["interval"]))

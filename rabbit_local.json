@@ -1,0 +1,73 @@
+{
+    "rabbit_version": "3.8.8",
+    "rabbitmq_version": "3.8.8",
+    "product_name": "RabbitMQ",
+    "product_version": "3.8.8",
+    "users": [
+        {
+            "name": "rbmq_user",
+            "password_hash": "WSvMRpuNL/aKdW1ozVh4qAtd/EeM9rW+aILLnZx8XEDfHdJ3",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": "administrator"
+        }
+    ],
+    "vhosts": [
+        {
+            "name": "LOCAL"
+        }
+    ],
+    "permissions": [
+        {
+            "user": "rbmq_user",
+            "vhost": "LOCAL",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        }
+    ],
+    "topic_permissions": [],
+    "parameters": [],
+    "global_parameters": [
+        {
+            "name": "cluster_name",
+            "value": "rabbit@228f730a6c55"
+        },
+        {
+            "name": "internal_cluster_id",
+            "value": "rabbitmq-cluster-id-WCiyTrh339x8UGj8Wi5Ynw"
+        }
+    ],
+    "policies": [],
+    "queues": [
+        {
+            "name": "MQ01",
+            "vhost": "LOCAL",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-queue-type": "classic"
+            }
+        }
+    ],
+    "exchanges": [
+        {
+            "name": "EXCH01",
+            "vhost": "LOCAL",
+            "type": "direct",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        }
+    ],
+    "bindings": [
+        {
+            "source": "EXCH01",
+            "vhost": "LOCAL",
+            "destination": "MQ01",
+            "destination_type": "queue",
+            "routing_key": "ToMQ01",
+            "arguments": {}
+        }
+    ]
+}

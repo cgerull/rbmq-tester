@@ -131,19 +131,27 @@ def produce(config):
                 get_connection_parameters(config)
                 )
             channel = connection.channel()
-            channel.queue_declare(queue=config["queue"])
+            channel.queue_declare(queue=config["queue"],durable=True)
+            # Prepare payload
+            if config["payload"]:
+                payload = get_payload(config["payload"])
+            else:
+                payload = default_playload()
+            # Check / prepare parameters
+            routing_key = config["routing_key"] \
+                if  config["routing_key"] else config["queue"]
             print("MQ Producer is running, stop with CTRL-C")
             while True:
-                if config["payload"]:
-                    payload = get_payload(config["payload"])
-                else:
-                    payload = default_playload()
                 channel.basic_publish(exchange=config["exchange"],
-                                    routing_key = config["queue"],
+                                    routing_key = routing_key,
                                     properties = payload['properties'],
                                     body = payload['body'])
                                     
-                print(" Sent {}".format(payload))
+                print(" Sent {} to {} on {}".format(
+                    payload,
+                    config["exchange"],
+                    config["vhost"])
+                    )
                 # Sleep x seconds so we don't flood the exchange
                 if config["interval"]:
                     time.sleep(config["interval"])
@@ -161,9 +169,9 @@ def produce(config):
         except KeyboardInterrupt:
             break
         # Recover on all other connection errors
-        except pika.exceptions.AMQPConnectionError:
+        except pika.exceptions.AMQPConnectionError as amqp_conn_err:
             # Retry once a second
-            print("No connection, retrying ...")
+            print("{}. No connection, retrying ...".format(amqp_conn_err))
             time.sleep(1)
             continue
 
@@ -187,7 +195,7 @@ def consume(config):
                 get_connection_parameters(config)
                 )
             channel = connection.channel()
-            channel.queue_declare(config["queue"])
+            channel.queue_declare(config["queue"], durable=True)
             def callback(ch, method, properties, body):
                 print("Received {}".format(body))
 

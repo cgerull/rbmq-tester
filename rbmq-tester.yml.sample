@@ -2,7 +2,7 @@
 host: 192.168.178.54
 user: rbmq_user
 pw: rbmq_pass
-queue: testq
+queue: LOCAL
 interval: 10
-
+payload: 'payloads/payload-sample.yml'
 
