@@ -14,10 +14,10 @@ class Config:
     config = {
         'host': 'localhost',
         'port': 5672,
-        'user': 'mquser',
-        'pw': '$eCr3t',
+        'user': 'guest',
+        'pw': 'guest',
         'vhost': 'LOCAL',
-        'exchange': '',
+        'exchange': 'myExchg',
         'queue': 'myMQ',
         'routing_key': '',
         'endless': True,

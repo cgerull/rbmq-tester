@@ -32,10 +32,14 @@ def get_connection_parameters(config):
         The pika connection parameters.
     """
     conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
-    conn_parameters = pika.ConnectionParameters(config["host"],
-                                       config["port"],
-                                       config["vhost"],
-                                       conn_credentials)
+    # ssl_options = pika.SSLOptions(None)
+    conn_parameters = pika.ConnectionParameters(
+        host = config["host"],
+        port = config["port"],
+        virtual_host = config["vhost"],
+        credentials = conn_credentials
+        # ssl_options = ssl_options
+        )
     return conn_parameters
 
 def default_playload():
