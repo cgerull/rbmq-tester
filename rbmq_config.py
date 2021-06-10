@@ -14,6 +14,7 @@ class Config:
     config = {
         'host': 'localhost',
         'port': 5672,
+        'ssl_port': 5671,
         'user': 'guest',
         'pw': 'guest',
         'vhost': 'LOCAL',
@@ -22,7 +23,9 @@ class Config:
         'routing_key': '',
         'endless': True,
         'payload': '',
-        'interval': 0
+        'interval': 0,
+        'ssl_enabled': True,
+        'mode': 'consume'
     }
 
     #config_file = './rbmq-tester.yml'
@@ -77,4 +80,6 @@ class Config:
         self.config["exchange"] = os.getenv('RBMQ_EXCHANGE', self.config["exchange"])
         self.config["payload"] = os.getenv('RBMQ_PAYLOAD', self.config["payload"])
         self.config["interval"] = int(os.getenv('RBMQ_INTERVAL', self.config["interval"]))
+        self.config["ssl_enabled"] = (os.getenv('RBMQ_SSL_ENABLED', self.config["ssl_enabled"]))
+        self.config["mode"] = os.getenv('MODE', self.config["mode"])
         return self.config

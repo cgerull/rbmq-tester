@@ -10,32 +10,39 @@ def generate_config_parameters(request):
     expected_default_result = {
         'host': 'localhost',
         'port': 5672,
-        'user': 'mquser',
-        'pw': '$eCr3t',
+        'ssl_port': 5671,
+        'user': 'guest',
+        'pw': 'guest',
         'vhost': 'LOCAL',
-        'exchange': '',
+        'exchange': 'myExchg',
         'queue': 'myMQ',
         'routing_key': '',
         'endless': True,
         'payload': '',
-        'interval': 0
+        'interval': 0,
+        'ssl_enabled': True,
+        'mode': 'consume'
     }
     expected_file_result = {
         'host': 'localhost',
         'port': 5672,
+        'ssl_port': 5671,
         'user': 'rbmq_user',
         'pw': 'rbmq_pass',
         'vhost': 'LOCAL',
-        'exchange': '',
+        'exchange': 'myExchg',
         'queue': 'testq',
         'routing_key': '',
         'endless': True,
         'payload': '',
-        'interval': 10
+        'interval': 10,
+        'ssl_enabled': True,
+        'mode': 'consume'
     }
     expected_env_result = {
         'host': 'mytesthost',
         'port': 5671,
+        'ssl_port': 5671,
         'user': 'test_user',
         'pw': 'test_pw',
         'vhost': '/myvhost',
@@ -44,7 +51,9 @@ def generate_config_parameters(request):
         'routing_key': 'rkey',
         'endless': True,
         'payload': 'test_payload',
-        'interval': 60
+        'interval': 60,
+        'ssl_enabled': 'False',
+        'mode': 'produce'
     }    
 
     return expected_default_result, expected_file_result, expected_env_result
@@ -61,7 +70,9 @@ def mock_set_environment(monkeypatch):
         'RBMQ_ROUTING_KEY': 'rkey',
         'RBMQ_EXCHANGE': 'test_exchg',
         'RBMQ_PAYLOAD': 'test_payload',
-        'RBMQ_INTERVAL': '60'
+        'RBMQ_INTERVAL': '60',
+        'RBMQ_SSL_ENABLED': 'False',
+        'MODE': 'produce'
     }
     for key, value in test_environment.items():
         monkeypatch.setenv(key, value)
