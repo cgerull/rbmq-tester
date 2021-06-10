@@ -17,6 +17,8 @@ import time
 import pika
 import json
 import yaml
+import ssl
+import certifi
 
 import rbmq_config
 # from rbmq_config import Config
@@ -31,14 +33,29 @@ def get_connection_parameters(config):
     Returns:
         The pika connection parameters.
     """
+    port = config["port"]
+    ssl_options = None
+
+    if config["ssl_enabled"]:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.verify_mode = ssl.CERT_NONE
+        context.check_hostname = False
+        # context.verify_mode = ssl.CERT_REQUIRED
+        # context.load_verify_locations(settings["rabbitmq"].get("ca_bundle", '/etc/pki/tls/certs/ca-bundle.crt'))
+        # # Load the CA certificates used for validating the peer's certificate
+        # context.load_verify_locations(cafile=os.path.relpath(certifi.where()),
+        #                           capath=None,
+        #                           cadata=None)
+        ssl_options = pika.SSLOptions(context)
+        port = config["ssl_port"]
+
     conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
-    # ssl_options = pika.SSLOptions(None)
     conn_parameters = pika.ConnectionParameters(
         host = config["host"],
         port = config["port"],
         virtual_host = config["vhost"],
-        credentials = conn_credentials
-        # ssl_options = ssl_options
+        credentials = conn_credentials,
+        ssl_options = ssl_options
         )
     return conn_parameters
 
@@ -239,8 +256,10 @@ if __name__ == "__main__":
     print("{} config is {}".format(mode, config))
     try:
         if 'produce' == mode:
+            config['mode'] = mode
             produce(config)
         elif 'consume'  == mode:
+            config['mode'] = mode
             consume(config)
         else:
             usage()

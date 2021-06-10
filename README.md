@@ -42,15 +42,19 @@ The precedence of config variables is (high to low):
 
 In this version the following environment variables are supported:
 
-| Variable      | Description                                          |
-|---------------|------------------------------------------------------|
-| RBMQ_HOST     | RabbitMQ host, if run from container the Docker host |
-| RBMQ_USER     | username                                             |
-| RBMQ_PASS     | password                                             |
-| RBMQ_QUEUE    | queue name, will be created if not existing          |
-| RBMQ_EXCHG    | Exchange name, default to AMQP default               |
-| RBMQ_PAYLOAD  | File name for payload file                           |
-| RBMQ_INTERVAL | Interval in seconds of message sent                  |
+| Variable         | Description                                          |
+|------------------|------------------------------------------------------|
+| RBMQ_HOST        | RabbitMQ host, if run from container the Docker host |
+| RBMQ_USER        | username                                             |
+| RBMQ_PASS        | password                                             |
+| RBMQ_QUEUE       | queue name, will be created if not existing          |
+| RBMQ_EXCHG       | Exchange name, default to AMQP default               |
+| RBMQ_ROUTING_KEY | Routing key, default to queue name                   |
+| RBMQ_EXCHG       | Exchange name, default to AMQP default               |
+| RBMQ_PAYLOAD     | File name for payload file                           |
+| RBMQ_INTERVAL    | Interval in seconds of message sent                  |
+| RBMQ_SSL_ENABLED | Use SSL, default False                               |
+| MODE             | Produce or consume                                   |
 
 
 ## Producer
