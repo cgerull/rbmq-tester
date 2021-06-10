@@ -38,14 +38,14 @@ def get_connection_parameters(config):
 
     if config["ssl_enabled"]:
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        context.verify_mode = ssl.CERT_NONE
-        context.check_hostname = False
-        # context.verify_mode = ssl.CERT_REQUIRED
+        # context.verify_mode = ssl.CERT_NONE
+        # context.check_hostname = False
+        context.verify_mode = ssl.CERT_REQUIRED
         # context.load_verify_locations(settings["rabbitmq"].get("ca_bundle", '/etc/pki/tls/certs/ca-bundle.crt'))
-        # # Load the CA certificates used for validating the peer's certificate
-        # context.load_verify_locations(cafile=os.path.relpath(certifi.where()),
-        #                           capath=None,
-        #                           cadata=None)
+        # Load the CA certificates used for validating the peer's certificate
+        context.load_verify_locations(cafile=os.path.relpath(certifi.where()),
+                                  capath=None,
+                                  cadata=None)
         ssl_options = pika.SSLOptions(context)
         port = config["ssl_port"]
 
