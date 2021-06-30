@@ -1,6 +1,6 @@
 name: Docker-push
 on:
-  # push:
+  push:
   #   # Publish `master` as Docker `latest` image.
   #   branches:
   #     - 'master'
@@ -64,6 +64,7 @@ jobs:
           
           IMAGE="${{ env.IMAGE_NAME }}:$VER"
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          echo "Image:  $IMAGE"
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
