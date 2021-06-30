@@ -1,14 +1,16 @@
-name: Docker-push
+name: Build and publish
 on:
-  push:
+  # push:
   #   # Publish `master` as Docker `latest` image.
   #   branches:
   #     - 'master'
+  # Publish `master` as `latest` tag.
   pull_request:
+    branches:
+      - master
+  # Publish release as versioned tags
   release:
-    # Publish `master` as Docker `latest` image.
     types: [published]
-
 
 jobs:
    # Run tests.
@@ -18,7 +20,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
       - name: Run tests
         run: |
           if [ -f docker-compose.test.yml ]; then
@@ -50,21 +51,17 @@ jobs:
           password: ${{ secrets.DOCKERHUB_SECRET }}
       - name: Set image name and version
         run: |
-          # # Strip git ref prefix from version
-          # VER=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          VER=latest
-
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VER=$(echo $VER | sed -e 's/^v//')
-
-          # Use Docker `latest` tag convention
-          [[ $VER =~ [0-9].* ]] && echo "TAG=$VER" >> $GITHUB_ENV
-          echo VER $VER
-          echo TAG ${{ env.TAG }}
-          
-          IMAGE="${{ env.IMAGE_NAME }}:$VER"
+          # Define tag name
+          VER=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          if [[ ${VER} =~ [0-9].* ]]; then                          
+            TAG=${VER}
+          else
+            TAG=latest
+          fi
+          IMAGE="${{ env.IMAGE_NAME }}:${TAG}"
+          echo "Building and pushing:  $IMAGE"
+          # Save between steps
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
-          echo "Image:  $IMAGE"
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
