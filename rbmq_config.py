@@ -91,8 +91,10 @@ class Config:
                                            self.config["payload"])
         self.config["interval"] = int(os.getenv('RBMQ_INTERVAL',
                                                 self.config["interval"]))
-        self.config["ssl_enabled"] = (os.getenv('RBMQ_SSL_ENABLED',
-                                                self.config["ssl_enabled"]))
+        self.config["ssl_enabled"] = os.getenv(
+                                        'RBMQ_SSL_ENABLED',
+                                         self.config["ssl_enabled"]).lower() \
+                                         in ('True', 'true')
         self.config["mode"] = os.getenv('MODE',
                                         self.config["mode"])
         return self.config
