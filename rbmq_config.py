@@ -73,6 +73,8 @@ class Config:
                                         self.config["host"])
         self.config["port"] = int(os.getenv('RBMQ_PORT',
                                             self.config["port"]))
+        self.config["ssl_port"] = int(os.getenv('RBMQ_SSL_PORT',
+                                                self.config["ssl_port"]))
         self.config["user"] = os.getenv('RBMQ_USER',
                                         self.config["user"])
         self.config["pw"] = os.getenv('RBMQ_PASS',
