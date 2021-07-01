@@ -53,7 +53,7 @@ def generate_config_parameters(request):
         'endless': True,
         'payload': 'test_payload',
         'interval': 60,
-        'ssl_enabled': 'False',
+        'ssl_enabled': False,
         'mode': 'produce'
     }
 

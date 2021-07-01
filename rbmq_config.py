@@ -58,9 +58,10 @@ class Config:
             for key in iter(ext_config.keys()):
                 self.config[key] = ext_config[key]
 
-        except:
-            print("Can't read configuration file {}".format(file),
-                  file=sys.stderr)
+        except IOError as io_err:
+            print("Can't read configuration file {}, throws {}" \
+                .format(file, io_err),
+                file=sys.stderr)
 
     def get_config(self):
         """
@@ -71,10 +72,12 @@ class Config:
         """
         self.config["host"] = os.getenv('RBMQ_HOST',
                                         self.config["host"])
-        self.config["port"] = int(os.getenv('RBMQ_PORT',
-                                            self.config["port"]))
-        self.config["ssl_port"] = int(os.getenv('RBMQ_SSL_PORT',
-                                                self.config["ssl_port"]))
+        self.config["port"] = int(os.getenv(
+                                    'RBMQ_PORT',
+                                    str(self.config["port"])))
+        self.config["ssl_port"] = int(os.getenv(
+                                        'RBMQ_SSL_PORT',
+                                        str(self.config["ssl_port"])))
         self.config["user"] = os.getenv('RBMQ_USER',
                                         self.config["user"])
         self.config["pw"] = os.getenv('RBMQ_PASS',
@@ -89,12 +92,13 @@ class Config:
                                             self.config["exchange"])
         self.config["payload"] = os.getenv('RBMQ_PAYLOAD',
                                            self.config["payload"])
-        self.config["interval"] = int(os.getenv('RBMQ_INTERVAL',
-                                                self.config["interval"]))
+        self.config["interval"] = int(os.getenv(
+                                        'RBMQ_INTERVAL',
+                                        str(self.config["interval"])))
         self.config["ssl_enabled"] = os.getenv(
                                         'RBMQ_SSL_ENABLED',
-                                         self.config["ssl_enabled"]).lower() \
-                                         in ('True', 'true')
+                                        str(self.config["ssl_enabled"])) \
+                                        .lower() in ('True', 'true')
         self.config["mode"] = os.getenv('MODE',
                                         self.config["mode"])
         return self.config
