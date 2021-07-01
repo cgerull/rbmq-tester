@@ -235,18 +235,20 @@ def consume(config):
             channel.start_consuming()
 
         # Don't recover if connection was closed by broker
-        except pika.exceptions.ConnectionClosedByBroker:
+        except pika.exceptions.ConnectionClosedByBroker as conn_excep:
+            print("ConnectionClosedByBroker: {}".format(conn_excep))
             break
         # Don't recover on channel errors
-        except pika.exceptions.AMQPChannelError:
+        except pika.exceptions.AMQPChannelError as amqp_chan_err:
+            print("AMQPChannelError: {}".format(amqp_chan_err))
             break
         # Break on keyboard interrupt
         except KeyboardInterrupt:
             break
         # Recover on all other connection errors
-        except pika.exceptions.AMQPConnectionError:
+        except pika.exceptions.AMQPConnectionError as amqp_conn_err:
             # Retry once a second
-            print("No connection, retrying ...")
+            print("{}. No connection, retrying ...".format(amqp_conn_err))
             time.sleep(1)
             continue
 
