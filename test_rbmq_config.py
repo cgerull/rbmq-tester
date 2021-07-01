@@ -5,6 +5,7 @@ from importlib import reload
 
 import rbmq_config
 
+
 @pytest.fixture(params=['default'])
 def generate_config_parameters(request):
     expected_default_result = {
@@ -54,9 +55,10 @@ def generate_config_parameters(request):
         'interval': 60,
         'ssl_enabled': 'False',
         'mode': 'produce'
-    }    
+    }
 
     return expected_default_result, expected_file_result, expected_env_result
+
 
 @pytest.fixture
 def mock_set_environment(monkeypatch):
@@ -77,6 +79,7 @@ def mock_set_environment(monkeypatch):
     for key, value in test_environment.items():
         monkeypatch.setenv(key, value)
 
+
 @pytest.fixture
 def mock_config_file(tmpdir_factory):
     config_file = 'rbmq-tester.yml'
@@ -86,11 +89,12 @@ def mock_config_file(tmpdir_factory):
         'pw': 'rbmq_pass',
         'queue': 'testq',
         'interval': 10
-    }    
+    }
     with open(config_file, 'w') as f:
-        yaml.safe_dump(config,f)
+        yaml.safe_dump(config, f)
     yield
     os.remove(config_file)
+
 
 #
 #####################################################
@@ -98,6 +102,7 @@ def mock_config_file(tmpdir_factory):
 def test_default_config(generate_config_parameters):
     config = rbmq_config.Config().get_config()
     assert config == generate_config_parameters[0]
+
 
 def test_file_config(mock_config_file, generate_config_parameters):
     reload(rbmq_config)

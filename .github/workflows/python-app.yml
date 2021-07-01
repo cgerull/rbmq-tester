@@ -4,6 +4,8 @@
 name: Python test
 on:
   push:
+    branches-ignore:
+      - master
 
 jobs:
   test:

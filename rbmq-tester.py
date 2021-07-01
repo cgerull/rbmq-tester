@@ -9,7 +9,6 @@ Producer sends a configurable payload to an exchange.
 
 Consumer reads form a queue and output the result to stdout.
 """
-
 import sys
 import os
 import time
@@ -21,13 +20,13 @@ import ssl
 import certifi
 
 import rbmq_config
-# from rbmq_config import Config
+
 
 def get_connection_parameters(config):
     """
     Build pika connection parameters from config.
-    
-    Parameter: 
+
+    Parameter:
         config: Config object.
 
     Returns:
@@ -41,28 +40,31 @@ def get_connection_parameters(config):
         # context.verify_mode = ssl.CERT_NONE
         # context.check_hostname = False
         context.verify_mode = ssl.CERT_REQUIRED
-        # context.load_verify_locations(settings["rabbitmq"].get("ca_bundle", '/etc/pki/tls/certs/ca-bundle.crt'))
+        # context.load_verify_locations(
+        #   settings["rabbitmq"].get("ca_bundle",
+        #   '/etc/pki/tls/certs/ca-bundle.crt'))
         # Load the CA certificates used for validating the peer's certificate
         context.load_verify_locations(cafile=os.path.relpath(certifi.where()),
-                                  capath=None,
-                                  cadata=None)
+                                      capath=None,
+                                      cadata=None)
         ssl_options = pika.SSLOptions(context)
         port = config["ssl_port"]
 
     conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
     conn_parameters = pika.ConnectionParameters(
-        host = config["host"],
-        port = config["port"],
-        virtual_host = config["vhost"],
-        credentials = conn_credentials,
-        ssl_options = ssl_options
+        host=config["host"],
+        port=config["port"],
+        virtual_host=config["vhost"],
+        credentials=conn_credentials,
+        ssl_options=ssl_options
         )
     return conn_parameters
+
 
 def default_playload():
     """
     Define the default hardcode payload for quick tests.
-    
+
     Returns:
         A default payload with the current time.
     """
@@ -75,21 +77,23 @@ def default_playload():
                 time.asctime(time.localtime()), time.tzname)
     }
 
+
 def get_payload(payload_list):
     """Load the payload properties and body from file."""
     data_path = os.path.dirname(payload_list)
     with open(payload_list) as f:
-        definition= yaml.safe_load(f)
+        definition = yaml.safe_load(f)
     payload = {
         'properties': pika.BasicProperties(
-                content_type = definition['properties']['content_type'],
-                headers = definition['properties']['headers'],
-                delivery_mode = 1),
+                content_type=definition['properties']['content_type'],
+                headers=definition['properties']['headers'],
+                delivery_mode=1),
         'body': get_body(
             os.path.join(data_path, definition['content']),
             definition['properties']['content_type'])
     }
     return payload
+
 
 def get_body(file, type):
     """
@@ -105,29 +109,32 @@ def get_body(file, type):
         body = get_plain_file(file)
     elif 'json' == os.path.basename(type):
         body = get_json_file(file)
-    return body 
+    return body
+
 
 def get_plain_file(file):
     """
     Load text file.
 
-    Returns: 
+    Returns:
         the stringfied file
     """
     with open(file) as f:
         body = f.read()
     return body
 
+
 def get_json_file(file):
     """
     Load json file.
 
-    Returns: 
+    Returns:
         a json string
     """
     with open(file) as f:
         data = json.load(f)
-    return json.dumps(data) 
+    return json.dumps(data)
+
 
 def usage():
     """Print usage to stdout."""
@@ -135,8 +142,7 @@ def usage():
     usage:
       rbmq-test produce | consume
 
-    """
-    )
+    """)
 
 
 def produce(config):
@@ -152,7 +158,7 @@ def produce(config):
                 get_connection_parameters(config)
                 )
             channel = connection.channel()
-            channel.queue_declare(queue=config["queue"],durable=True)
+            channel.queue_declare(queue=config["queue"], durable=True)
             # Prepare payload
             if config["payload"]:
                 payload = get_payload(config["payload"])
@@ -160,14 +166,13 @@ def produce(config):
                 payload = default_playload()
             # Check / prepare parameters
             routing_key = config["routing_key"] \
-                if  config["routing_key"] else config["queue"]
+                if config["routing_key"] else config["queue"]
             print("MQ Producer is running, stop with CTRL-C")
             while True:
                 channel.basic_publish(exchange=config["exchange"],
-                                    routing_key = routing_key,
-                                    properties = payload['properties'],
-                                    body = payload['body'])
-                                    
+                                      routing_key=routing_key,
+                                      properties=payload['properties'],
+                                      body=payload['body'])
                 print(" Sent {} to {} on {}".format(
                     payload,
                     config["exchange"],
@@ -205,11 +210,6 @@ def consume(config):
 
     See rbmq_config.py for the possible parameters.
     """
-    # queue=config["queue"],
-    #        payload='',
-    #         exchange=config["exchange"],
-    #         endless=config["endless"]):
-        # Automatic connection recovery
     while True:
         try:
             connection = pika.BlockingConnection(
@@ -217,6 +217,7 @@ def consume(config):
                 )
             channel = connection.channel()
             channel.queue_declare(config["queue"], durable=True)
+
             def callback(ch, method, properties, body):
                 print("Received {}".format(body))
 
@@ -258,7 +259,7 @@ if __name__ == "__main__":
         if 'produce' == mode:
             config['mode'] = mode
             produce(config)
-        elif 'consume'  == mode:
+        elif 'consume' == mode:
             config['mode'] = mode
             consume(config)
         else:
