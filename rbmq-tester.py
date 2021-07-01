@@ -13,11 +13,11 @@ import sys
 import os
 import time
 
-import pika
+import ssl
 import json
 import yaml
-import ssl
 import certifi
+import pika
 
 import rbmq_config
 
@@ -32,8 +32,8 @@ def get_connection_parameters(config):
     Returns:
         The pika connection parameters.
     """
-    port = config["port"]
-    ssl_options = None
+    conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
+    conn_parameters = None
 
     if config["ssl_enabled"]:
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
@@ -47,17 +47,21 @@ def get_connection_parameters(config):
         context.load_verify_locations(cafile=os.path.relpath(certifi.where()),
                                       capath=None,
                                       cadata=None)
-        ssl_options = pika.SSLOptions(context)
-        port = config["ssl_port"]
+        conn_parameters = pika.ConnectionParameters(
+            host=config["host"],
+            port=config["ssl_port"],
+            virtual_host=config["vhost"],
+            ssl_options=pika.SSLOptions(context),
+            credentials=conn_credentials
+            )
+    else:
+        conn_parameters = pika.ConnectionParameters(
+            host=config["host"],
+            port=config["port"],
+            virtual_host=config["vhost"],
+            credentials=conn_credentials
+            )
 
-    conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
-    conn_parameters = pika.ConnectionParameters(
-        host=config["host"],
-        port=config["port"],
-        virtual_host=config["vhost"],
-        credentials=conn_credentials,
-        ssl_options=ssl_options
-        )
     return conn_parameters
 
 
@@ -248,9 +252,9 @@ def consume(config):
 
 
 if __name__ == "__main__":
-    if not 2 == len(sys.argv):
+    if len(sys.argv) != 2:
         usage()
-        exit(1)
+        sys.exit(1)
     mode = sys.argv[1]
     config = rbmq_config.Config().get_config()
     # Log our configuration
@@ -264,6 +268,6 @@ if __name__ == "__main__":
             consume(config)
         else:
             usage()
-            exit(1)
+            sys.exit(1)
     except KeyboardInterrupt:
         pass
