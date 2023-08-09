@@ -1,5 +1,6 @@
 .vscode/
 venv/
+.venv/
 py/
 winpy/
 **/rbmq-tester.yml
@@ -109,3 +110,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Local configurations and output
+rbmq-config.yml
