@@ -113,3 +113,4 @@ venv.bak/
 
 # Local configurations and output
 rbmq-config.yml
+*.tar
