@@ -11,13 +11,13 @@ class Config:
 
     Can be overwritten by a configuration file or by environment settings.
     """
-    config = {
+    parameters = {
         'host': 'localhost',
         'port': 5672,
         'ssl_port': 5671,
         'user': 'guest',
         'pw': 'guest',
-        'vhost': 'LOCAL',
+        'vhost': 'local',
         'exchange': 'myExchg',
         'queue': 'myMQ',
         'routing_key': '',
@@ -28,7 +28,7 @@ class Config:
         'mode': 'consume'
     }
 
-    def __init__(self, config_file='./rbmq-tester.yml'):
+    def __init__(self, config_file='./rbmq-config.yml'):
         """
         Construct a config object.
 
@@ -52,15 +52,14 @@ class Config:
         Do nothing if config file does not exists or load operations fails.
         """
         try:
-            config_stream = open(file, 'r')
+            config_stream = open(file, 'r', encoding="utf-8")
             ext_config = yaml.safe_load(config_stream)
             # QQQ merge config
             for key in iter(ext_config.keys()):
-                self.config[key] = ext_config[key]
+                self.parameters[key] = ext_config[key]
 
         except IOError as io_err:
-            print("Can't read configuration file {}, throws {}" \
-                .format(file, io_err),
+            print(f"Can't read configuration file {file}, throws {io_err}", \
                 file=sys.stderr)
 
     def get_config(self):
@@ -70,35 +69,35 @@ class Config:
         Finally overwrite default configuration with environment if set.
         If no ENV variable is set, the existing value is retained.
         """
-        self.config["host"] = os.getenv('RBMQ_HOST',
-                                        self.config["host"])
-        self.config["port"] = int(os.getenv(
+        self.parameters["host"] = os.getenv('RBMQ_HOST',
+                                        self.parameters["host"])
+        self.parameters["port"] = int(os.getenv(
                                     'RBMQ_PORT',
-                                    str(self.config["port"])))
-        self.config["ssl_port"] = int(os.getenv(
+                                    str(self.parameters["port"])))
+        self.parameters["ssl_port"] = int(os.getenv(
                                         'RBMQ_SSL_PORT',
-                                        str(self.config["ssl_port"])))
-        self.config["user"] = os.getenv('RBMQ_USER',
-                                        self.config["user"])
-        self.config["pw"] = os.getenv('RBMQ_PASS',
-                                      self.config["pw"])
-        self.config["vhost"] = os.getenv('RBMQ_VHOST',
-                                         self.config["vhost"])
-        self.config["queue"] = os.getenv('RBMQ_QUEUE',
-                                         self.config["queue"])
-        self.config["routing_key"] = os.getenv('RBMQ_ROUTING_KEY',
-                                               self.config["routing_key"])
-        self.config["exchange"] = os.getenv('RBMQ_EXCHANGE',
-                                            self.config["exchange"])
-        self.config["payload"] = os.getenv('RBMQ_PAYLOAD',
-                                           self.config["payload"])
-        self.config["interval"] = int(os.getenv(
+                                        str(self.parameters["ssl_port"])))
+        self.parameters["user"] = os.getenv('RBMQ_USER',
+                                        self.parameters["user"])
+        self.parameters["pw"] = os.getenv('RBMQ_PASS',
+                                      self.parameters["pw"])
+        self.parameters["vhost"] = os.getenv('RBMQ_VHOST',
+                                         self.parameters["vhost"])
+        self.parameters["queue"] = os.getenv('RBMQ_QUEUE',
+                                         self.parameters["queue"])
+        self.parameters["routing_key"] = os.getenv('RBMQ_ROUTING_KEY',
+                                               self.parameters["routing_key"])
+        self.parameters["exchange"] = os.getenv('RBMQ_EXCHANGE',
+                                            self.parameters["exchange"])
+        self.parameters["payload"] = os.getenv('RBMQ_PAYLOAD',
+                                           self.parameters["payload"])
+        self.parameters["interval"] = int(os.getenv(
                                         'RBMQ_INTERVAL',
-                                        str(self.config["interval"])))
-        self.config["ssl_enabled"] = os.getenv(
+                                        str(self.parameters["interval"])))
+        self.parameters["ssl_enabled"] = os.getenv(
                                         'RBMQ_SSL_ENABLED',
-                                        str(self.config["ssl_enabled"])) \
+                                        str(self.parameters["ssl_enabled"])) \
                                         .lower() in ('True', 'true')
-        self.config["mode"] = os.getenv('MODE',
-                                        self.config["mode"])
-        return self.config
+        self.parameters["mode"] = os.getenv('MODE',
+                                        self.parameters["mode"])
+        return self.parameters
