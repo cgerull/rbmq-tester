@@ -22,43 +22,38 @@ import pika
 import rbmq_config
 
 
-def get_connection_parameters(config):
+def get_connection_parameters(param):
     """
-    Build pika connection parameters from config.
+    Build pika connection param from configuration.
 
     Parameter:
-        config: Config object.
+        param: Config object.
 
     Returns:
-        The pika connection parameters.
+        The pika connection param.
     """
-    conn_credentials = pika.PlainCredentials(config["user"], config["pw"])
+    conn_credentials = pika.PlainCredentials(param["user"], param["pw"])
     conn_parameters = None
 
-    if config["ssl_enabled"]:
+    if param["ssl_enabled"]:
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        # context.verify_mode = ssl.CERT_NONE
-        # context.check_hostname = False
         context.verify_mode = ssl.CERT_REQUIRED
-        # context.load_verify_locations(
-        #   settings["rabbitmq"].get("ca_bundle",
-        #   '/etc/pki/tls/certs/ca-bundle.crt'))
         # Load the CA certificates used for validating the peer's certificate
         context.load_verify_locations(cafile=os.path.relpath(certifi.where()),
                                       capath=None,
                                       cadata=None)
         conn_parameters = pika.ConnectionParameters(
-            host=config["host"],
-            port=config["ssl_port"],
-            virtual_host=config["vhost"],
+            host=param["host"],
+            port=param["ssl_port"],
+            virtual_host=param["vhost"],
             ssl_options=pika.SSLOptions(context),
             credentials=conn_credentials
             )
     else:
         conn_parameters = pika.ConnectionParameters(
-            host=config["host"],
-            port=config["port"],
-            virtual_host=config["vhost"],
+            host=param["host"],
+            port=param["port"],
+            virtual_host=param["vhost"],
             credentials=conn_credentials
             )
 
@@ -77,16 +72,15 @@ def default_playload():
             content_type='text/plain',
             delivery_mode=1
         ),
-        'body': "Now it's {} in {}".format(
-                time.asctime(time.localtime()), time.tzname)
+        'body': f"Now it's {time.asctime(time.localtime())} in {time.tzname}"
     }
 
 
 def get_payload(payload_list):
     """Load the payload properties and body from file."""
     data_path = os.path.dirname(payload_list)
-    with open(payload_list) as f:
-        definition = yaml.safe_load(f)
+    with open(payload_list, encoding="utf-8") as file:
+        definition = yaml.safe_load(file)
     payload = {
         'properties': pika.BasicProperties(
                 content_type=definition['properties']['content_type'],
@@ -99,7 +93,7 @@ def get_payload(payload_list):
     return payload
 
 
-def get_body(file, type):
+def get_body(file, content_type):
     """
     Load payload body from file.
 
@@ -109,9 +103,9 @@ def get_body(file, type):
         Body in text or json format
     """
     body = None
-    if 'text' == os.path.basename(type):
+    if 'text' == os.path.basename(content_type):
         body = get_plain_file(file)
-    elif 'json' == os.path.basename(type):
+    elif 'json' == os.path.basename(content_type):
         body = get_json_file(file)
     return body
 
@@ -123,8 +117,8 @@ def get_plain_file(file):
     Returns:
         the stringfied file
     """
-    with open(file) as f:
-        body = f.read()
+    with open(file, encoding="utf-8") as file:
+        body = file.read()
     return body
 
 
@@ -135,9 +129,24 @@ def get_json_file(file):
     Returns:
         a json string
     """
-    with open(file) as f:
-        data = json.load(f)
+    with open(file, encoding="utf-8") as file:
+        data = json.load(file)
     return json.dumps(data)
+
+
+def publish(channel, exch, queue, key, load, vhost):
+    """
+    Publish payload to message queue.
+    Use a connection channel to send the payload to a
+    a queue on a given exchange.
+    """
+
+    channel.queue_declare(queue=queue, durable=True)
+    channel.basic_publish(exchange=exch,
+                    routing_key=key,
+                    properties=load['properties'],
+                    body=load['body'])
+    print(f" Sent {load} to {exch} on {vhost}")
 
 
 def usage():
@@ -149,64 +158,69 @@ def usage():
     """)
 
 
-def produce(config):
+def produce(param):
     """
     Send message to a RabbitMQ server.
 
     See rbmq_config.py for the possible parameters.
     """
     # Automatic connection recovery
-    while config["endless"]:
+    while param["endless"]:
         try:
             connection = pika.BlockingConnection(
-                get_connection_parameters(config)
+                get_connection_parameters(param)
                 )
-            channel = connection.channel()
-            channel.queue_declare(queue=config["queue"], durable=True)
+            # channel = connection.channel()
+            # channel.queue_declare(queue=param["queue"], durable=True)
             # Prepare payload
-            if config["payload"]:
-                payload = get_payload(config["payload"])
+            if param["payload"]:
+                payload = get_payload(param["payload"])
             else:
                 payload = default_playload()
-            # Check / prepare parameters
-            routing_key = config["routing_key"] \
-                if config["routing_key"] else config["queue"]
+            # Check / prepare param
+            routing_key = param["routing_key"] \
+                if param["routing_key"] else param["queue"]
             print("MQ Producer is running, stop with CTRL-C")
             while True:
-                channel.basic_publish(exchange=config["exchange"],
-                                      routing_key=routing_key,
-                                      properties=payload['properties'],
-                                      body=payload['body'])
-                print(" Sent {} to {} on {}".format(
-                    payload,
-                    config["exchange"],
-                    config["vhost"])
-                    )
+                publish(
+                    connection.channel(),
+                    param["exchange"],
+                    param["queue"],
+                    routing_key,
+                    payload,param['vhost']
+                )
+                # channel.basic_publish(exchange=param["exchange"],
+                #                       routing_key=routing_key,
+                #                       properties=payload['properties'],
+                #                       body=payload['body'])
+                # print(f" Sent {payload} to {param['exchange']} on {param['vhost']}")
                 # Sleep x seconds so we don't flood the exchange
-                if config["interval"]:
-                    time.sleep(config["interval"])
+                if param["interval"]:
+                    time.sleep(param["interval"])
 
-            connection.close()
+            # connection.close()
         # Don't recover if connection was closed by broker
         except pika.exceptions.ConnectionClosedByBroker as conn_excep:
-            print("ConnectionClosedByBroker: {}".format(conn_excep))
+            print(f"ConnectionClosedByBroker: {conn_excep}")
             break
         # Don't recover on channel errors
         except pika.exceptions.AMQPChannelError as amqp_chan_err:
-            print("AMQPChannelError: {}".format(amqp_chan_err))
+            print(f"AMQPChannelError: {amqp_chan_err}")
+            connection.close()
             break
         # Break on keyboard interrupt
         except KeyboardInterrupt:
+            connection.close()
             break
         # Recover on all other connection errors
         except pika.exceptions.AMQPConnectionError as amqp_conn_err:
             # Retry once a second
-            print("{}. No connection, retrying ...".format(amqp_conn_err))
+            print(f"{amqp_conn_err}. No connection, retrying ...")
             time.sleep(1)
             continue
 
 
-def consume(config):
+def consume(param):
     """
     Read from a RabbitMQ queue.
 
@@ -217,16 +231,16 @@ def consume(config):
     while True:
         try:
             connection = pika.BlockingConnection(
-                get_connection_parameters(config)
+                get_connection_parameters(param)
                 )
             channel = connection.channel()
-            channel.queue_declare(config["queue"], durable=True)
+            channel.queue_declare(param["queue"], durable=True)
 
-            def callback(ch, method, properties, body):
-                print("Received {}".format(body))
+            def callback(channel, method, properties, body):
+                print(f"Received {body}")
 
             channel.basic_consume(
-                queue=config["queue"],
+                queue=param["queue"],
                 on_message_callback=callback,
                 auto_ack=True
             )
@@ -236,11 +250,11 @@ def consume(config):
 
         # Don't recover if connection was closed by broker
         except pika.exceptions.ConnectionClosedByBroker as conn_excep:
-            print("ConnectionClosedByBroker: {}".format(conn_excep))
+            print(f"ConnectionClosedByBroker: {conn_excep}")
             break
         # Don't recover on channel errors
         except pika.exceptions.AMQPChannelError as amqp_chan_err:
-            print("AMQPChannelError: {}".format(amqp_chan_err))
+            print(f"AMQPChannelError: {amqp_chan_err}")
             break
         # Break on keyboard interrupt
         except KeyboardInterrupt:
@@ -248,7 +262,7 @@ def consume(config):
         # Recover on all other connection errors
         except pika.exceptions.AMQPConnectionError as amqp_conn_err:
             # Retry once a second
-            print("{}. No connection, retrying ...".format(amqp_conn_err))
+            print(f"{amqp_conn_err}. No connection, retrying ...")
             time.sleep(1)
             continue
 
@@ -257,17 +271,17 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         usage()
         sys.exit(1)
-    mode = sys.argv[1]
-    config = rbmq_config.Config().get_config()
+    MODE = sys.argv[1]
+    parameters = rbmq_config.Config().get_config()
     # Log our configuration
-    print("{} config is {}".format(mode, config))
+    print(f"{MODE} config is {parameters}")
     try:
-        if 'produce' == mode:
-            config['mode'] = mode
-            produce(config)
-        elif 'consume' == mode:
-            config['mode'] = mode
-            consume(config)
+        if 'produce' == MODE:
+            parameters['mode'] = MODE
+            produce(parameters)
+        elif 'consume' == MODE:
+            parameters['mode'] = MODE
+            consume(parameters)
         else:
             usage()
             sys.exit(1)
